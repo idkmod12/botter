@@ -52,12 +52,13 @@
       document.getElementById('launch-form').addEventListener('submit', (event) => {
         event.preventDefault();
         const form = new FormData(event.currentTarget);
-        sessionStorage.setItem('botterPayload', JSON.stringify({
+        const params = new URLSearchParams({
           code: String(form.get('code') || '').trim(),
           amount: String(form.get('amount') || '').trim(),
           name: String(form.get('name') || '').trim(),
-        }));
-        window.location.href = '/data';
+          at: String(Date.now()),
+        });
+        window.location.href = `/data?${params.toString()}`;
       });
     </script>
   </body>
