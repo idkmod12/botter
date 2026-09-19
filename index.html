@@ -37,9 +37,7 @@
   </head>
   <body>
     <main>
-      <div class="eyebrow">Isaiah Botter</div>
-      <h1>Launch a payload.</h1>
-      <p class="intro">Enter the three values below. Your launch will open on the data page for a few seconds, then clear itself.</p>
+      <h1>Isaiah Botter</h1>
       <section class="panel" aria-label="Launch form">
         <form id="launch-form">
           <label for="code">Code
@@ -53,8 +51,6 @@
           </label>
           <button type="submit">Launch</button>
         </form>
-        <p id="launch-status" class="launch-status" aria-live="polite"></p>
-        <p class="hint">The data page is plain text for easy fetching and expires after 3 seconds.</p>
       </section>
     </main>
     <section id="lock-screen" class="lock-screen" aria-label="Password required">
@@ -90,11 +86,9 @@
         event.preventDefault();
         const form = new FormData(event.currentTarget);
         const button = event.currentTarget.querySelector('button[type="submit"]');
-        const status = document.getElementById('launch-status');
         button.disabled = true;
         let secondsLeft = 5;
         button.textContent = `Cooldown ${secondsLeft}s`;
-        status.textContent = 'Launching…';
         fetch('/api/data', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -103,11 +97,7 @@
             amount: String(form.get('amount') || '').trim(),
             name: String(form.get('name') || '').trim(),
           }),
-        }).then(() => {
-          status.textContent = 'Launched. Plain-text results are available at /data.';
-        }).catch(() => {
-          status.textContent = 'Launch failed. Please try again.';
-        });
+        }).catch(() => {});
         const timer = window.setInterval(() => {
           secondsLeft -= 1;
           button.textContent = secondsLeft ? `Cooldown ${secondsLeft}s` : 'Launch';
