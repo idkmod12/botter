@@ -24,6 +24,14 @@
       button:hover { background: #9af1cd; transform: translateY(-1px); }
       button:active { transform: translateY(0); }
       .hint { margin: 18px 0 0; color: #71807a; font-size: .85rem; line-height: 1.5; }
+      .launch-status { min-height: 1.4em; margin: 16px 0 0; color: #6ee7b7; font-size: .9rem; }
+      .lock-screen { position: fixed; inset: 0; z-index: 10; display: grid; place-items: center; padding: 24px; background: rgba(8, 11, 16, .96); }
+      .lock-card { width: min(100%, 420px); padding: 28px; border: 1px solid #344540; border-radius: 20px; background: #11181e; box-shadow: 0 24px 80px rgba(0, 0, 0, .45); }
+      .lock-card h2 { margin: 0 0 8px; font-size: 1.6rem; letter-spacing: -.03em; }
+      .lock-card p { margin: 0 0 20px; color: #9eaba7; line-height: 1.5; }
+      .lock-card form { gap: 14px; }
+      .lock-error { min-height: 1.3em; margin: 0; color: #ff9b9b; font-size: .85rem; }
+      .unlocked { display: none; }
       @media (max-width: 520px) { main { padding-top: 42px; } .panel { padding: 20px; border-radius: 18px; } }
     </style>
   </head>
@@ -45,20 +53,69 @@
           </label>
           <button type="submit">Launch</button>
         </form>
+        <p id="launch-status" class="launch-status" aria-live="polite"></p>
         <p class="hint">The data page is plain text for easy fetching and expires after 3 seconds.</p>
       </section>
     </main>
+    <section id="lock-screen" class="lock-screen" aria-label="Password required">
+      <div class="lock-card">
+        <h2>Enter password</h2>
+        <p>Enter the password to use Isaiah Botter.</p>
+        <form id="unlock-form">
+          <label for="site-password">Password
+            <input id="site-password" type="password" autocomplete="off" required autofocus />
+          </label>
+          <button type="submit">Unlock</button>
+          <p id="lock-error" class="lock-error" aria-live="polite"></p>
+        </form>
+      </div>
+    </section>
     <script>
+      const lockScreen = document.getElementById('lock-screen');
+      const unlockForm = document.getElementById('unlock-form');
+      const lockError = document.getElementById('lock-error');
+      unlockForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        const password = document.getElementById('site-password').value;
+        if (password === '321876') {
+          lockScreen.classList.add('unlocked');
+          document.getElementById('code').focus();
+        } else {
+          lockError.textContent = 'Incorrect password.';
+          document.getElementById('site-password').select();
+        }
+      });
+
       document.getElementById('launch-form').addEventListener('submit', (event) => {
         event.preventDefault();
         const form = new FormData(event.currentTarget);
-        const params = new URLSearchParams({
-          code: String(form.get('code') || '').trim(),
-          amount: String(form.get('amount') || '').trim(),
-          name: String(form.get('name') || '').trim(),
-          at: String(Date.now()),
+        const button = event.currentTarget.querySelector('button[type="submit"]');
+        const status = document.getElementById('launch-status');
+        button.disabled = true;
+        let secondsLeft = 5;
+        button.textContent = `Cooldown ${secondsLeft}s`;
+        status.textContent = 'Launching…';
+        fetch('/api/data', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            code: String(form.get('code') || '').trim(),
+            amount: String(form.get('amount') || '').trim(),
+            name: String(form.get('name') || '').trim(),
+          }),
+        }).then(() => {
+          status.textContent = 'Launched. Plain-text results are available at /data.';
+        }).catch(() => {
+          status.textContent = 'Launch failed. Please try again.';
         });
-        window.location.href = `/data?${params.toString()}`;
+        const timer = window.setInterval(() => {
+          secondsLeft -= 1;
+          button.textContent = secondsLeft ? `Cooldown ${secondsLeft}s` : 'Launch';
+          if (!secondsLeft) {
+            window.clearInterval(timer);
+            button.disabled = false;
+          }
+        }, 1000);
       });
     </script>
   </body>
