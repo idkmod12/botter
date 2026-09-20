@@ -108,9 +108,10 @@
       const amountInput = document.getElementById('amount');
       const amountMessage = document.getElementById('amount-message');
       amountInput.addEventListener('input', () => {
-        if (Number(amountInput.value) > 50) {
-          amountInput.value = '50';
-          amountMessage.textContent = '50 is max';
+        const maxAmount = selectedMode === 'DN' ? 4 : 50;
+        if (Number(amountInput.value) > maxAmount) {
+          amountInput.value = String(maxAmount);
+          amountMessage.textContent = `${maxAmount} is max`;
         } else {
           amountMessage.textContent = '';
         }
@@ -164,6 +165,14 @@
       let selectedMode = null;
       function openMode(mode) {
         selectedMode = mode;
+        const maxAmount = mode === 'DN' ? 4 : 50;
+        amountInput.max = String(maxAmount);
+        if (Number(amountInput.value) > maxAmount) {
+          amountInput.value = String(maxAmount);
+          amountMessage.textContent = `${maxAmount} is max`;
+        } else {
+          amountMessage.textContent = '';
+        }
         modeMenu.classList.add('hidden');
         launchPanel.classList.remove('hidden', 'k-theme', 'w-theme', 'dn-theme');
         launchPanel.classList.add(mode === 'K' ? 'k-theme' : mode === 'W' ? 'w-theme' : 'dn-theme');

@@ -12,19 +12,20 @@ export default async function handler(request, response) {
         response.status(204).end();
         return;
       }
+      const mode = String(payload.mode || 'K').toUpperCase();
+      if (!['K', 'W', 'DN'].includes(mode)) {
+        response.status(400).json({ error: 'Mode must be K, W, or DN' });
+        return;
+      }
+      const maxAmount = mode === 'DN' ? 4 : 50;
       const amount = Number(payload.amount);
-      if (!Number.isInteger(amount) || amount < 1 || amount > 50) {
-        response.status(400).json({ error: 'Amount must be between 1 and 50' });
+      if (!Number.isInteger(amount) || amount < 1 || amount > maxAmount) {
+        response.status(400).json({ error: `Amount must be between 1 and ${maxAmount}` });
         return;
       }
       const name = String(payload.name || '');
       if (name.length > 13) {
         response.status(400).json({ error: 'Name must be 13 characters or fewer' });
-        return;
-      }
-      const mode = String(payload.mode || 'K').toUpperCase();
-      if (!['K', 'W', 'DN'].includes(mode)) {
-        response.status(400).json({ error: 'Mode must be K, W, or DN' });
         return;
       }
       latestPayload = { ...payload, amount, name, mode, launchedAt: Date.now() };
