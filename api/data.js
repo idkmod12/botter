@@ -7,7 +7,8 @@ export default async function handler(request, response) {
     try {
       const payload = await readJson(request);
       if (payload.stop === true) {
-        latestPayload = { stop: true, launchedAt: Date.now() };
+        const stopMode = String(payload.mode || 'K').toUpperCase();
+        latestPayload = { stop: true, mode: ['K', 'W', 'DN'].includes(stopMode) ? stopMode : 'K', launchedAt: Date.now() };
         response.status(204).end();
         return;
       }
@@ -22,8 +23,8 @@ export default async function handler(request, response) {
         return;
       }
       const mode = String(payload.mode || 'K').toUpperCase();
-      if (!['K', 'W'].includes(mode)) {
-        response.status(400).json({ error: 'Mode must be K or W' });
+      if (!['K', 'W', 'DN'].includes(mode)) {
+        response.status(400).json({ error: 'Mode must be K, W, or DN' });
         return;
       }
       latestPayload = { ...payload, amount, name, mode, launchedAt: Date.now() };
@@ -48,7 +49,7 @@ export default async function handler(request, response) {
   }
 
   if (latestPayload?.stop === true) {
-    response.status(200).send('stop');
+    response.status(200).send(`stop\n${latestPayload.mode || 'K'}`);
     return;
   }
 

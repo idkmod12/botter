@@ -21,9 +21,12 @@
       .k-button:hover { background: #a78bfa; }
       .w-button { background: #ec4899; color: #fff; }
       .w-button:hover { background: #f472b6; }
+      .dn-button { background: #102a43; color: #dbeafe; }
+      .dn-button:hover { background: #163b5f; }
       .hidden { display: none; }
       .mode-panel.k-theme { border-color: #6d45c7; background: rgba(43, 25, 72, .88); }
       .mode-panel.w-theme { border-color: #c23b7e; background: rgba(72, 24, 51, .88); }
+      .mode-panel.dn-theme { border-color: #234e70; background: rgba(12, 30, 50, .9); }
       form { display: grid; gap: 20px; }
       label { display: grid; gap: 8px; color: #d8e1de; font-size: .9rem; font-weight: 650; }
       input { width: 100%; border: 1px solid #344540; border-radius: 12px; background: #0c1216; color: #f3f7f5; padding: 14px 15px; font: inherit; outline: none; transition: border-color .2s, box-shadow .2s; }
@@ -53,6 +56,7 @@
       <section id="mode-menu" class="mode-menu" aria-label="Choose mode">
         <button id="k-button" class="mode-button k-button" type="button">K</button>
         <button id="w-button" class="mode-button w-button" type="button">W</button>
+        <button id="dn-button" class="mode-button dn-button" type="button">DN</button>
       </section>
       <section id="launch-panel" class="panel mode-panel hidden" aria-label="Launch form">
         <form id="launch-form">
@@ -161,11 +165,12 @@
       function openMode(mode) {
         selectedMode = mode;
         modeMenu.classList.add('hidden');
-        launchPanel.classList.remove('hidden', 'k-theme', 'w-theme');
-        launchPanel.classList.add(mode === 'K' ? 'k-theme' : 'w-theme');
+        launchPanel.classList.remove('hidden', 'k-theme', 'w-theme', 'dn-theme');
+        launchPanel.classList.add(mode === 'K' ? 'k-theme' : mode === 'W' ? 'w-theme' : 'dn-theme');
       }
       document.getElementById('k-button').addEventListener('click', () => openMode('K'));
       document.getElementById('w-button').addEventListener('click', () => openMode('W'));
+      document.getElementById('dn-button').addEventListener('click', () => openMode('DN'));
 
       document.getElementById('stop-button').addEventListener('click', async (event) => {
         const button = event.currentTarget;
@@ -175,7 +180,7 @@
           const response = await fetch('/api/data', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ stop: true }),
+            body: JSON.stringify({ stop: true, mode: selectedMode }),
           });
           if (!response.ok) throw new Error('stop failed');
           button.textContent = 'Stop sent';
