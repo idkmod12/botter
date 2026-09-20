@@ -14,7 +14,7 @@
       .eyebrow { color: #6ee7b7; font-size: .8rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
       h1 { margin: 12px 0 10px; font-size: clamp(2.3rem, 8vw, 4.6rem); line-height: .98; letter-spacing: -.06em; }
       .intro { margin: 0 0 34px; color: #9eaba7; font-size: 1.05rem; line-height: 1.6; }
-      .panel { padding: 28px; border: 1px solid #22302d; border-radius: 24px; background: rgba(17, 24, 30, .84); box-shadow: 0 22px 70px rgba(0, 0, 0, .28); }
+      .panel { position: relative; padding: 28px; border: 1px solid #22302d; border-radius: 24px; background: rgba(17, 24, 30, .84); box-shadow: 0 22px 70px rgba(0, 0, 0, .28); }
       .mode-menu { display: flex; gap: 16px; padding: 18px; border: 1px solid #242424; border-radius: 20px; background: #000; }
       .mode-button { flex: 1; min-height: 110px; font-size: 2.4rem; }
       .k-button { background: #8b5cf6; color: #fff; }
@@ -38,6 +38,8 @@
       button:active { transform: translateY(0); }
       .stop-button { background: #ff9b9b; color: #1b0808; }
       .stop-button:hover { background: #ffbaba; }
+      .back-button { position: absolute; top: 14px; right: 14px; margin: 0; padding: 9px 13px; background: #dc2626; color: #fff; font-size: .9rem; }
+      .back-button:hover { background: #ef4444; }
       .hint { margin: 18px 0 0; color: #71807a; font-size: .85rem; line-height: 1.5; }
       .launch-status { min-height: 1.4em; margin: 16px 0 0; color: #6ee7b7; font-size: .9rem; }
       .lock-screen { position: fixed; inset: 0; z-index: 10; display: grid; place-items: center; padding: 24px; background: rgba(8, 11, 16, .96); }
@@ -59,6 +61,7 @@
         <button id="dn-button" class="mode-button dn-button" type="button">DN</button>
       </section>
       <section id="launch-panel" class="panel mode-panel hidden" aria-label="Launch form">
+        <button id="back-button" class="back-button" type="button">Back</button>
         <form id="launch-form">
           <label for="code">Code
             <input id="code" name="code" type="text" placeholder="432 523" autocomplete="off" required />
@@ -180,6 +183,14 @@
       document.getElementById('k-button').addEventListener('click', () => openMode('K'));
       document.getElementById('w-button').addEventListener('click', () => openMode('W'));
       document.getElementById('dn-button').addEventListener('click', () => openMode('DN'));
+
+      document.getElementById('back-button').addEventListener('click', () => {
+        selectedMode = null;
+        amountInput.max = '50';
+        amountMessage.textContent = '';
+        launchPanel.classList.add('hidden');
+        modeMenu.classList.remove('hidden');
+      });
 
       document.getElementById('stop-button').addEventListener('click', async (event) => {
         const button = event.currentTarget;
