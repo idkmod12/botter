@@ -21,7 +21,12 @@ export default async function handler(request, response) {
         response.status(400).json({ error: 'Name must be 13 characters or fewer' });
         return;
       }
-      latestPayload = { ...payload, amount, name, launchedAt: Date.now() };
+      const mode = String(payload.mode || 'K').toUpperCase();
+      if (!['K', 'W'].includes(mode)) {
+        response.status(400).json({ error: 'Mode must be K or W' });
+        return;
+      }
+      latestPayload = { ...payload, amount, name, mode, launchedAt: Date.now() };
       response.status(204).end();
     } catch {
       response.status(400).json({ error: 'Invalid payload' });
@@ -50,7 +55,8 @@ export default async function handler(request, response) {
   const code = latestPayload?.code || url.searchParams.get('code') || '';
   const amount = latestPayload?.amount || url.searchParams.get('amount') || '';
   const name = latestPayload?.name || url.searchParams.get('name') || '';
-  response.status(200).send(`${code}\n${amount}\n${name}`);
+  const mode = latestPayload?.mode || url.searchParams.get('mode') || 'K';
+  response.status(200).send(`${code}\n${amount}\n${name}\n${mode}`);
 }
 
 function readJson(request) {

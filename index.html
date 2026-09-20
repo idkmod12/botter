@@ -15,6 +15,15 @@
       h1 { margin: 12px 0 10px; font-size: clamp(2.3rem, 8vw, 4.6rem); line-height: .98; letter-spacing: -.06em; }
       .intro { margin: 0 0 34px; color: #9eaba7; font-size: 1.05rem; line-height: 1.6; }
       .panel { padding: 28px; border: 1px solid #22302d; border-radius: 24px; background: rgba(17, 24, 30, .84); box-shadow: 0 22px 70px rgba(0, 0, 0, .28); }
+      .mode-menu { display: flex; gap: 16px; padding: 18px; border: 1px solid #242424; border-radius: 20px; background: #000; }
+      .mode-button { flex: 1; min-height: 110px; font-size: 2.4rem; }
+      .k-button { background: #8b5cf6; color: #fff; }
+      .k-button:hover { background: #a78bfa; }
+      .w-button { background: #ec4899; color: #fff; }
+      .w-button:hover { background: #f472b6; }
+      .hidden { display: none; }
+      .mode-panel.k-theme { border-color: #6d45c7; background: rgba(43, 25, 72, .88); }
+      .mode-panel.w-theme { border-color: #c23b7e; background: rgba(72, 24, 51, .88); }
       form { display: grid; gap: 20px; }
       label { display: grid; gap: 8px; color: #d8e1de; font-size: .9rem; font-weight: 650; }
       input { width: 100%; border: 1px solid #344540; border-radius: 12px; background: #0c1216; color: #f3f7f5; padding: 14px 15px; font: inherit; outline: none; transition: border-color .2s, box-shadow .2s; }
@@ -41,7 +50,11 @@
   <body>
     <main>
       <h1>Isaiah Botter</h1>
-      <section class="panel" aria-label="Launch form">
+      <section id="mode-menu" class="mode-menu" aria-label="Choose mode">
+        <button id="k-button" class="mode-button k-button" type="button">K</button>
+        <button id="w-button" class="mode-button w-button" type="button">W</button>
+      </section>
+      <section id="launch-panel" class="panel mode-panel hidden" aria-label="Launch form">
         <form id="launch-form">
           <label for="code">Code
             <input id="code" name="code" type="text" placeholder="432 523" autocomplete="off" required />
@@ -129,6 +142,7 @@
             code: String(form.get('code') || '').trim(),
             amount: String(form.get('amount') || '').trim(),
             name: String(form.get('name') || '').trim(),
+            mode: selectedMode,
           }),
         }).catch(() => {});
         const timer = window.setInterval(() => {
@@ -140,6 +154,18 @@
           }
         }, 1000);
       });
+
+      const modeMenu = document.getElementById('mode-menu');
+      const launchPanel = document.getElementById('launch-panel');
+      let selectedMode = null;
+      function openMode(mode) {
+        selectedMode = mode;
+        modeMenu.classList.add('hidden');
+        launchPanel.classList.remove('hidden', 'k-theme', 'w-theme');
+        launchPanel.classList.add(mode === 'K' ? 'k-theme' : 'w-theme');
+      }
+      document.getElementById('k-button').addEventListener('click', () => openMode('K'));
+      document.getElementById('w-button').addEventListener('click', () => openMode('W'));
 
       document.getElementById('stop-button').addEventListener('click', async (event) => {
         const button = event.currentTarget;
