@@ -23,6 +23,8 @@
       button { margin-top: 4px; border: 0; border-radius: 12px; padding: 15px 18px; background: #6ee7b7; color: #07110d; font: inherit; font-weight: 800; cursor: pointer; transition: transform .2s, background .2s; }
       button:hover { background: #9af1cd; transform: translateY(-1px); }
       button:active { transform: translateY(0); }
+      .stop-button { background: #ff9b9b; color: #1b0808; }
+      .stop-button:hover { background: #ffbaba; }
       .hint { margin: 18px 0 0; color: #71807a; font-size: .85rem; line-height: 1.5; }
       .launch-status { min-height: 1.4em; margin: 16px 0 0; color: #6ee7b7; font-size: .9rem; }
       .lock-screen { position: fixed; inset: 0; z-index: 10; display: grid; place-items: center; padding: 24px; background: rgba(8, 11, 16, .96); }
@@ -50,6 +52,7 @@
             <input id="name" name="name" type="text" placeholder="Example" autocomplete="off" required />
           </label>
           <button type="submit">Launch</button>
+          <button id="stop-button" class="stop-button" type="button">Stop</button>
         </form>
       </section>
     </main>
@@ -106,6 +109,24 @@
             button.disabled = false;
           }
         }, 1000);
+      });
+
+      document.getElementById('stop-button').addEventListener('click', async (event) => {
+        const button = event.currentTarget;
+        button.disabled = true;
+        button.textContent = 'Stopping…';
+        try {
+          const response = await fetch('/api/data', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ stop: true }),
+          });
+          if (!response.ok) throw new Error('stop failed');
+          button.textContent = 'Stop sent';
+        } catch {
+          button.textContent = 'Stop failed';
+          button.disabled = false;
+        }
       });
 
     </script>
