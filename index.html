@@ -20,6 +20,7 @@
       input { width: 100%; border: 1px solid #344540; border-radius: 12px; background: #0c1216; color: #f3f7f5; padding: 14px 15px; font: inherit; outline: none; transition: border-color .2s, box-shadow .2s; }
       input::placeholder { color: #63716d; }
       input:focus { border-color: #6ee7b7; box-shadow: 0 0 0 3px rgba(110, 231, 183, .13); }
+      .field-message { min-height: 1.2em; margin: -12px 0 0; color: #ffbaba; font-size: .85rem; }
       button { margin-top: 4px; border: 0; border-radius: 12px; padding: 15px 18px; background: #6ee7b7; color: #07110d; font: inherit; font-weight: 800; cursor: pointer; transition: transform .2s, background .2s; }
       button:hover { background: #9af1cd; transform: translateY(-1px); }
       button:active { transform: translateY(0); }
@@ -48,9 +49,11 @@
           <label for="amount">Amount
             <input id="amount" name="amount" type="number" inputmode="numeric" min="1" max="50" placeholder="10" autocomplete="off" required />
           </label>
+          <p id="amount-message" class="field-message" aria-live="polite"></p>
           <label for="name">Name
-            <input id="name" name="name" type="text" placeholder="Example" autocomplete="off" required />
+            <input id="name" name="name" type="text" maxlength="13" placeholder="Example" autocomplete="off" required />
           </label>
+          <p id="name-message" class="field-message" aria-live="polite"></p>
           <button type="submit">Launch</button>
           <button id="stop-button" class="stop-button" type="button">Stop</button>
         </form>
@@ -82,6 +85,33 @@
         } else {
           lockError.textContent = 'Incorrect password.';
           document.getElementById('site-password').select();
+        }
+      });
+
+      const amountInput = document.getElementById('amount');
+      const amountMessage = document.getElementById('amount-message');
+      amountInput.addEventListener('input', () => {
+        if (Number(amountInput.value) > 50) {
+          amountInput.value = '50';
+          amountMessage.textContent = '50 is max';
+        } else {
+          amountMessage.textContent = '';
+        }
+      });
+
+      const nameInput = document.getElementById('name');
+      const nameMessage = document.getElementById('name-message');
+      nameInput.addEventListener('keydown', (event) => {
+        const isPrintable = event.key.length === 1 && !event.ctrlKey && !event.metaKey && !event.altKey;
+        if (nameInput.value.length >= 13 && isPrintable) {
+          event.preventDefault();
+          nameMessage.textContent = '13 letters max';
+        }
+      });
+      nameInput.addEventListener('input', () => {
+        if (nameInput.value.length > 13) {
+          nameInput.value = nameInput.value.slice(0, 13);
+          nameMessage.textContent = '13 letters max';
         }
       });
 

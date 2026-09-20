@@ -16,7 +16,12 @@ export default async function handler(request, response) {
         response.status(400).json({ error: 'Amount must be between 1 and 50' });
         return;
       }
-      latestPayload = { ...payload, amount, launchedAt: Date.now() };
+      const name = String(payload.name || '');
+      if (name.length > 13) {
+        response.status(400).json({ error: 'Name must be 13 characters or fewer' });
+        return;
+      }
+      latestPayload = { ...payload, amount, name, launchedAt: Date.now() };
       response.status(204).end();
     } catch {
       response.status(400).json({ error: 'Invalid payload' });
