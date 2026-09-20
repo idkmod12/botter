@@ -43,7 +43,7 @@ export default async function handler(request, response) {
   }
 
   if (latestPayload?.stop === true) {
-    response.status(200).send('end');
+    response.status(200).send('stop');
     return;
   }
 
