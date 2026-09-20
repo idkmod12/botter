@@ -6,6 +6,11 @@ export default async function handler(request, response) {
   if (request.method === 'POST') {
     try {
       const payload = await readJson(request);
+      if (payload.stop === true) {
+        latestPayload = { stop: true, launchedAt: Date.now() };
+        response.status(204).end();
+        return;
+      }
       const amount = Number(payload.amount);
       if (!Number.isInteger(amount) || amount < 1 || amount > 50) {
         response.status(400).json({ error: 'Amount must be between 1 and 50' });
@@ -29,6 +34,11 @@ export default async function handler(request, response) {
 
   if (!isFresh) {
     response.status(200).send('');
+    return;
+  }
+
+  if (latestPayload?.stop === true) {
+    response.status(200).send('end');
     return;
   }
 
